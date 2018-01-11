@@ -4,14 +4,15 @@
 #include "queue.h"
 #include <assert.h>
 
-//TEST ADDITION
-
-//test
  
 // Allocates the memory to you queue (the data* pointer) and initializes all parts of the data structure.
 // Prints out an error message if malloc() fails and calls assert(false) to
 // print-out line-number information and die.
+//	queue_t * newQueue;
+//	queue_init(newQueue, 500, "a name")
+
 void queue_init(queue_t* q, queue_size_t size, const char* name){
+	
 	q->underflowFlag = false;  // True if queue_pop() is called on an empty queue.
   q-> overflowFlag = false;  // True if queue_push() is called on a full queue.
   q->indexIn = 0;
@@ -44,7 +45,7 @@ queue_size_t queue_size(queue_t* q){
  
 // Returns true if the queue is full.
 bool queue_full(queue_t* q){
-	if (q->indexOut == 0 && q->indexIn == q->size - 1 ||
+	if (q->indexOut == 0 && q->indexIn == queue_size(q) ||
 		q->indexOut == q->indexIn + 1){
 		return true;
 	} else{
@@ -65,15 +66,16 @@ bool queue_empty(queue_t* q){
 // IF the queue is full, set the overflowFlag, print an error message and DO NOT change the queue.
 void queue_push(queue_t* q, queue_data_t value){
 	if (queue_full(q)){
-		printf("OVERFLOW\n");
+		printf("OVERFLOW: CAN'T PUSH INTO FULL QUEUE\n");
 		q->overflowFlag = true;
 	} else{
 		//printf("VALUE: %lf \n\r", value);
 		//printf("TEST: %lf \n\r", q->data[q->indexIn]);
 		q->data[q->indexIn] = value;
+		q->underflowFlag = false;
 		//printf("TEST: %lf \n\r", q->data[q->indexIn]);
 		//printf("INDEX IN: %ld DATA: %lf VALUE %lf\n\r", q->indexIn, q->data[q->indexIn], value);
-		if (q->indexIn < q->size){
+		if (q->indexIn < q->size - 1){
 			q->indexIn++;
 		} else{
 			q->indexIn = 0;
@@ -85,11 +87,12 @@ void queue_push(queue_t* q, queue_data_t value){
 // If the queue is empty, set the underflowFlag, print an error message, and DO NOT change the queue.
 queue_data_t queue_pop(queue_t* q){
 	if (queue_empty(q)){
-		printf("UNDERFLOW\n");
+		printf("UNDERFLOW: CAN'T POP FROM EMPTY QUEUE\n");
 		q->underflowFlag = true;
 	} else{
+		q->overflowFlag = false;
 		queue_index_t index = q->indexOut;
-		if (q->indexOut < q->size){
+		if (q->indexOut < q->size - 1){
 			q->indexOut++;
 		} else{
 			q->indexOut = 0;
@@ -132,7 +135,7 @@ bool queue_indexOutOfBounds(queue_t* q, queue_index_t index){
 queue_data_t queue_readElementAt(queue_t* q, queue_index_t index){
 	//TODO: CATCH ERROR
 	if(queue_indexOutOfBounds(q, index)){
-		printf("ERROR\n");
+		printf("ERROR: INDEX OUT OF BOUNDS\n");
 		return QUEUE_RETURN_ERROR_VALUE;
 	}
 	if (q->indexIn > q->indexOut){
@@ -144,8 +147,9 @@ queue_data_t queue_readElementAt(queue_t* q, queue_index_t index){
 			printf("INDEX LESS THAN SIZE\n");
 			return q->data[index + q->indexOut];
 		} else{
-			printf("ANOTHER INDEX TEST");
-			return q->data[q->indexIn - (index - (q->size - q->indexOut))];
+			//printf("ANOTHER INDEX TEST");
+			return q->data[index - (q->size - q->indexOut)];
+			//return q->data[q->indexIn - (index - (queue_size(q) - q->indexOut))];
 		}
 		
 	}
@@ -159,8 +163,8 @@ queue_size_t queue_elementCount(queue_t* q){
 		//printf("ELEMENT COUNT IN > OUT:%ld\n", q->indexIn - q->indexOut);
 		return q->indexIn - q->indexOut;
 	} else{
-		//printf("ELEMENT COUNT IN <= OUT:%ld\n", q->indexIn + (q->size - q->indexOut));
-		return q->indexIn + (q->size - q->indexOut) +  1;
+		//printf("ELEMENT COUNT IN <= OUT:%ld\n", q->indexIn + (queue_size(q) - q->indexOut));
+		return q->indexIn + (q->size - q->indexOut);
 	}
 }
  
@@ -184,7 +188,7 @@ void queue_garbageCollect(queue_t* q){
 // HINT: Just use queue_readElementAt() in a for-loop. Trivial to implement this way.
 void queue_print(queue_t* q){
 	uint32_t i;
-	for(i = 0; i < q->size; ++i){
+	for(i = 0; i < queue_size(q); ++i){
 		printf("ELEMENT AT INDEX %d: %d\n\r", i, queue_readElementAt(q, i));
 	}
 }
