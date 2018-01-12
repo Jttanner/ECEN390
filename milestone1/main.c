@@ -14,7 +14,7 @@
 
 int main(){
     queue_runTest();
-    queue_t myQueue;
+    queue_t * myQueue;
     queue_init(&myQueue, SIZE, NAME);
     queue_push(&myQueue, 10);
     queue_push(&myQueue, 11);
