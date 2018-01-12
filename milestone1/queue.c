@@ -188,8 +188,8 @@ void queue_garbageCollect(queue_t* q){
 // HINT: Just use queue_readElementAt() in a for-loop. Trivial to implement this way.
 void queue_print(queue_t* q){
     uint32_t i;
-    for(i = 0; i < queue_size(q); ++i){                                            //steps through the queue and prints everything off
-        printf("ELEMENT AT INDEX %d: %d\n\r", i, queue_readElementAt(q, i));
+    for(i = 0; i < queue_elementCount(q); ++i){                                            //steps through the queue and prints everything off
+        printf("ELEMENT AT INDEX %ld: %lf\n\r", i, queue_readElementAt(q, i));
     }
 }
 
