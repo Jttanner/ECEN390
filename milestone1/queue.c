@@ -69,12 +69,8 @@ void queue_push(queue_t* q, queue_data_t value){
         printf("OVERFLOW: CAN'T PUSH INTO FULL QUEUE\n");            //first check to see if queue full. If is then can't push and print error message
         q->overflowFlag = true;                                      //sets an overflowFlag for error checking
     } else{
-        //printf("VALUE: %lf \n\r", value);
-        //printf("TEST: %lf \n\r", q->data[q->indexIn]);
         q->data[q->indexIn] = value;                                 //pushes value into the next indexIn
         q->underflowFlag = false;                                    //Always resets the underflowFlag if pushes without error
-        //printf("TEST: %lf \n\r", q->data[q->indexIn]);
-        //printf("INDEX IN: %ld DATA: %lf VALUE %lf\n\r", q->indexIn, q->data[q->indexIn], value);
         if (q->indexIn < q->size - 1){                               //If indexIn isn't at the top point to the next highest
             q->indexIn++;
         } else{
@@ -133,21 +129,16 @@ bool queue_indexOutOfBounds(queue_t* q, queue_index_t index){         //helper f
 // (according to the order that they were added).
 // Print a meaningful error message if an error condition is detected.
 queue_data_t queue_readElementAt(queue_t* q, queue_index_t index){
-    //TODO: CATCH ERROR
     if(queue_indexOutOfBounds(q, index)){                                      //first check to see if index is out of bounds if so print error and return 0.0
         printf("ERROR: INDEX OUT OF BOUNDS\n");
         return QUEUE_RETURN_ERROR_VALUE;
     }
     if (q->indexIn > q->indexOut){                                             //normal case when indexIn above indexOut
-        //printf("READ: %lf AT %ld\n", q->data[index + q->indexOut], index);
-        //printf("REAL INDEX: %ld\n", index + q->indexOut);
         return q->data[index + q->indexOut];                                   //return data at index plus indexOut in case it's been popped a couple times
     } else{
         if (index < q->size - q->indexOut){                                    //if index less than size - indexOut
-            //printf("INDEX LESS THAN SIZE\n");
             return q->data[index + q->indexOut];                               //return data at index + indexOut
         } else{
-            //printf("ANOTHER INDEX TEST");
             return q->data[index - (q->size - q->indexOut)];                       //return data at index - queue size - indexOut
         }
 
@@ -159,10 +150,8 @@ queue_size_t queue_elementCount(queue_t* q){
     if(queue_empty(q)){                                                            //if empty queue return 0
         return 0;
     } else if (q->indexIn > q->indexOut){                                          //if indexIn greater than indexOut
-        //printf("ELEMENT COUNT IN > OUT:%ld\n", q->indexIn - q->indexOut);
         return q->indexIn - q->indexOut;                                           //size equal to in - out
     } else{
-        //printf("ELEMENT COUNT IN <= OUT:%ld\n", q->indexIn + (queue_size(q) - q->indexOut));
         return q->indexIn + (q->size - q->indexOut);                               //size equal to in + size - out
     }
 }
