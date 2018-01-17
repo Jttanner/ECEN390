@@ -149,7 +149,6 @@ queue_data_t queue_readElementAt(queue_t* q, queue_index_t index){
         } else{
             //printf("ANOTHER INDEX TEST");
             return q->data[index - (q->size - q->indexOut)];                       //return data at index - queue size - indexOut
-            //return q->data[q->indexIn - (index - (queue_size(q) - q->indexOut))];
         }
 
     }
