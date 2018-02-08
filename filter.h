@@ -26,23 +26,28 @@ const uint16_t filter_frequencyTickTable[FILTER_FREQUENCY_COUNT] = {68, 58, 50, 
 **********************************************************************************************************/
 
 // Must call this prior to using any filter functions.
+//TODO: TAYLOR
 void filter_init();
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
+//TODO: TAYLOR
 void filter_addNewInput(double x);
 
 // Fills a queue with the given fillValue. For example,
 // if the queue is of size 10, and the fillValue = 1.0,
 // after executing this function, the queue will contain 10 values
 // all of them 1.0.
+//TODO: TAYLOR
 void filter_fillQueue(queue_t* q, double fillValue);
 
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
+//TODO: TAYLOR
 double filter_firFilter();
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
 // Output is returned and is also pushed onto zQueue[filterNumber].
+//TODO: JON
 double filter_iirFilter(uint16_t filterNumber);
 
 // Use this to compute the power for values contained in an outputQueue.
@@ -55,9 +60,11 @@ double filter_iirFilter(uint16_t filterNumber);
 // 4. Compute new power as: prev-power - (oldest-value * oldest-value) + (newest-value * newest-value).
 // Note that this function will probably need an array to keep track of these values for each
 // of the 10 output queues.
+//TODO: JON
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint);
 
 // Returns the last-computed output power value for the IIR filter [filterNumber].
+//TODO: JON
 double filter_getCurrentPowerValue(uint16_t filterNumber);
 
 // Get a copy of the current power values.
@@ -65,11 +72,13 @@ double filter_getCurrentPowerValue(uint16_t filterNumber);
 // so that they can be accessed from outside the filter software by the detector.
 // Remember that when you pass an array into a C function, changes to the array within
 // that function are reflected in the returned array.
+//TODO: JON
 void filter_getCurrentPowerValues(double powerValues[]);
 
 // Using the previously-computed power values that are current stored in currentPowerValue[] array,
 // Copy these values into the normalizedArray[] argument and then normalize them by dividing
 // all of the values in normalizedArray by the maximum power value contained in currentPowerValue[].
+//TODO: JON
 void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t* indexOfMaxValue);
 
 /*********************************************************************************************************
