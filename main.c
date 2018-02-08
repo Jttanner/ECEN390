@@ -5,6 +5,7 @@
  *      Author: tshumwa2
  */
 
+#include <stdio.h>
 #include "queue.h"
 
 #define SIZE 20
@@ -14,6 +15,7 @@
 
 int main(){
     queue_runTest();
+    printf("test");
     return 0;
 }
 
