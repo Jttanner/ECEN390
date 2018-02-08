@@ -8,7 +8,7 @@
 #ifndef FILTERTEST_H_
 #define FILTERTEST_H_
 
-#include <w32api/vss.h>
+#include <stdbool.h>
 
 // Invoke init before calling filterTest_runTest().
 void filterTest_init();
