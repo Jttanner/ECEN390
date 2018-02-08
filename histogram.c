@@ -10,6 +10,9 @@
 
 #define TOP_LABEL_TEXT_SIZE 1
 #define HISTOGRAM_DEFAULT_BAR_COUNT 10
+
+#define FILTER_FREQUENCY_COUNT 50
+
 static uint16_t histogram_barCount = HISTOGRAM_DEFAULT_BAR_COUNT;
 static uint16_t histogram_barWidth;				// May share this with other functions in this package.
 static uint16_t topLabelMaxWidthInChars;	// How many chars will be printed.
@@ -209,7 +212,7 @@ void histogram_setBarLabel(histogram_index_t barIndex, const char* label) {
 }
 
 // Sets the size of the characters used in the bottom labels.
-void histogram_setBottomLabelTextSize(uint16_t) {
+void histogram_setBottomLabelTextSize(uint16_t size) {
 
 }
 
