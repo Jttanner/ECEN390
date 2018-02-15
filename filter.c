@@ -5,22 +5,35 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "filter.h"
+#include "queue.h"
 
 #define IIR_FILTER_COUNT 10
 
 #define IIR_COEFFICIENT_COUNT 11
 #define FIR_COEFFICIENT_COUNT 81
 
+#define X_QUEUE_SIZE FIR_COEFFICIENT_COUNT
+#define Y_QUEUE_SIZE FIR_COEFFICIENT_COUNT
+#define Z_QUEUE_SIZE IIR_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE IIR_COEFFICIENT_COUNT
+
+#define BANDWIDTH 50
 
 #define IIR_FILTER_BASE_NAME "Filter Number "
 
-static queue_t xQueue[IIR_FILTER_COUNT];
-static queue_t yQueue[IIR_FILTER_COUNT];
+static queue_t xQueue;
+static queue_t yQueue;
+static queue_t zQueues[IIR_FILTER_COUNT];
+static queue_t outputQueues[IIR_FILTER_COUNT];
+
+//Player frequencies
+const static double playerFrequencies[IIR_FILTER_COUNT] = {1471, 1724, 2000, 2273, 2632, 2941, 3333, 3571, 3846, 4167};
+
 
 //Filter Coefficients
 
 //LOWPASS ANTI-ALIASING FIR
-const static double firCoefficients[FIR_FILTER_TAP_COUNT] = {
+const static double firCoefficients[FIR_COEFFICIENT_COUNT] = {
         6.0546138291252597e-04,
         5.2507143315267811e-04,
         3.8449091272701525e-04,
@@ -103,7 +116,7 @@ const static double firCoefficients[FIR_FILTER_TAP_COUNT] = {
         5.2507143315267811e-04,
         6.0546138291252597e-04};
 //BANDPASS IIR,   A
-const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_A_COEFFICIENT_COUNT] = {
+const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_COEFFICIENT_COUNT] = {
         {-5.9638000000000000e+00, 1.9125000000000000e+01, -4.0341000000000001e+01, 6.1536999999999999e+01, -7.0019999999999996e+01, 6.0298999999999999e+01, -3.8734000000000002e+01, 1.7994000000000000e+01, -5.4978999999999996e+00, 9.0332999999999997e-01},
         {-4.6378000000000004e+00, 1.3502000000000001e+01, -2.6155999999999999e+01, 3.8590000000000003e+01, -4.3039000000000001e+01, 3.7813000000000002e+01, -2.5114000000000001e+01, 1.2702999999999999e+01, -4.2755000000000001e+00, 9.0332999999999997e-01},
         {-3.0590999999999999e+00, 8.6417000000000002e+00, -1.4279000000000000e+01, 2.1302000000000000e+01, -2.2193999999999999e+01, 2.0873000000000001e+01, -1.3710000000000001e+01, 8.1303999999999998e+00, -2.8201999999999998e+00, 9.0332999999999997e-01},
@@ -116,7 +129,7 @@ const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_A_COEFF
         {8.5742999999999991e+00, 3.4307000000000002e+01, 8.4034999999999997e+01, 1.3928999999999999e+02, 1.6305000000000001e+02, 1.3647999999999999e+02, 8.0686000000000007e+01, 3.2276000000000003e+01, 7.9044999999999996e+00, 9.0332999999999997e-01}
 };
 //BANDPASS IIR,   B
-const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFFICIENT_COUNT] = {
+const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_COEFFICIENT_COUNT] = {
         {9.0927999999999999e-10, -0.0000000000000000e+00, -4.5463999999999999e-09, -0.0000000000000000e+00, 9.0927999999999999e-09, -0.0000000000000000e+00, -9.0927999999999999e-09, -0.0000000000000000e+00, 4.5463999999999999e-09, -0.0000000000000000e+00, -9.0927999999999999e-10},
         {9.0928999999999997e-10, 0.0000000000000000e+00, -4.5463999999999999e-09, 0.0000000000000000e+00, 9.0929000000000003e-09, 0.0000000000000000e+00, -9.0929000000000003e-09, 0.0000000000000000e+00, 4.5463999999999999e-09, 0.0000000000000000e+00, -9.0928999999999997e-10},
         {9.0928999999999997e-10, 0.0000000000000000e+00, -4.5463999999999999e-09, 0.0000000000000000e+00, 9.0929000000000003e-09, 0.0000000000000000e+00, -9.0929000000000003e-09, 0.0000000000000000e+00, 4.5463999999999999e-09, 0.0000000000000000e+00, -9.0928999999999997e-10},
@@ -129,17 +142,70 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
         {9.0907000000000005e-10, 0.0000000000000000e+00, -4.5453999999999996e-09, 0.0000000000000000e+00, 9.0907000000000005e-09, 0.0000000000000000e+00, -9.0907000000000005e-09, 0.0000000000000000e+00, 4.5453999999999996e-09, 0.0000000000000000e+00, -9.0907000000000005e-10}
 };
 
+void initXQueue();
+void initYQueue();
+void initZQueues();
+void initOutputQueues();
+void filter_fillQueue(queue_t* q, double fillValue);
+
+
 // Must call this prior to using any filter functions.
 void filter_init() {
-    for (uint8_t i = 0; i < IIR_FILTER_COUNT; ++i){
-        char queueNumber[QUEUE_MAX_NAME_SIZE];
-        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE);
-        char xQueueName[QUEUE_MAX_NAME_SIZE];
-        char yQueueName[QUEUE_MAX_NAME_SIZE];
-        strcat("XQueue", queueNumber);
-        strcat("YQueue", queueNumber)
-        queue_init(&(xQueue[i]), IIR_COEFFICIENT_COUNT, xQueueName);
-        queue_init(&(yQueue[i]), IIR_COEFFICIENT_COUNT, yQueueName);
+    initXQueue();
+    initYQueue();
+    initZQueues();
+    initOutputQueues();
+}
+
+void buildQueueName(char *queueName, uint16_t queueNumber){
+
+}
+
+void initXQueue(){
+//    for (uint8_t i = 0; i < IIR_FILTER_COUNT; ++i){
+//        char queueNumber[QUEUE_MAX_NAME_SIZE];
+//        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE);
+//        char xQueueName[QUEUE_MAX_NAME_SIZE];
+//        strcat("XQueue", queueNumber);
+//        queue_init(&(xQueue[i]), IIR_COEFFICIENT_COUNT, xQueueName);
+//    }
+}
+
+void initYQueue(){
+//    for (uint8_t i = 0; i < IIR_FILTER_COUNT; ++i){
+//        char queueNumber[QUEUE_MAX_NAME_SIZE];
+//        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE);
+//        char yQueueName[QUEUE_MAX_NAME_SIZE];
+//        strcat("YQueue", queueNumber);
+//        queue_init(&(yQueue[i]), IIR_COEFFICIENT_COUNT, yQueueName);
+//    }
+    queue_init(&(yQueue), FIR_COEFFICIENT_COUNT, "yQueue");
+    for (uint16_t i = 0; i < Y_QUEUE_SIZE; ++i){
+        queue_overwritePush(&(yQueue), 0.0);
+    }
+}
+
+void initZQueues(){
+    for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
+        char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
+        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE); //make a string of the queue number which is an int, put it into string
+        char yQueueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
+        strcpy(yQueueName, "yQueue"); // initialize name
+        strcat(yQueueName, queueNumber); //concatenate queue name and number to build full name
+        queue_init(&(zQueues[i]), IIR_COEFFICIENT_COUNT, yQueueName); //init the queue
+        filter_fillQueue(&zQueues[i], 0.0); // fill the queue with values initialized to 0
+    }
+}
+
+void initOutputQueues(){
+    for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
+        char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
+        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE); //make a string of the queue number which is an int, put it into string
+        char queueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
+        strcpy(queueName, "outputQueue"); // initialize name
+        strcat(queueName, queueNumber); //concatenate queue name and number to build full name
+        queue_init(&(outputQueues[i]), IIR_COEFFICIENT_COUNT, queueName); //init the queue
+        filter_fillQueue(&outputQueues[i], 0.0); // fill the queue with values initialized to 0
     }
 }
 
@@ -153,7 +219,9 @@ void filter_addNewInput(double x) {
 // after executing this function, the queue will contain 10 values
 // all of them 1.0.
 void filter_fillQueue(queue_t* q, double fillValue) {
-
+    for (uint16_t i = 0; i < queue_size(q); ++i){
+        queue_overwritePush(q, fillValue);
+    }
 }
 
 // Invokes the FIR-filter. Input is contents of xQueue.
@@ -165,7 +233,19 @@ double filter_firFilter() {
 // Use this to invoke a single iir filter. Input comes from yQueue.
 // Output is returned and is also pushed onto zQueue[filterNumber].
 double filter_iirFilter(uint16_t filterNumber) {
+    double output = 0;
+    for(uint16_t i = 0; i < queue_size(&yQueue); ++i){
+        double playerFrequency = playerFrequencies[filterNumber]; //current player frequency
+        double element = queue_readElementAt(&yQueue, i); //gets element at this location of the queue
+        //b*x/a
+        output += iirACoefficientConstants[filterNumber][i]*element/iirBCoefficientConstants[filterNumber][i];
+//        double lowerFrequencyBandLimit = playerFrequencies[i] - BANDWIDTH/2;
+//        double upperFrequencyBandLimit = playerFrequencies[i] + BANDWIDTH/2;
+        //filter
+        //push onto z queue
+    }
 
+    return output;
 }
 
 // Use this to compute the power for values contained in an outputQueue.
