@@ -3,7 +3,8 @@
 //
 
 #include <stdlib.h>
-#include <memory.h>
+#include <string.h>
+#include <stdio.h>
 #include "filter.h"
 #include "queue.h"
 
