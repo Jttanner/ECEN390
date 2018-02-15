@@ -13,10 +13,10 @@
 #define IIR_COEFFICIENT_COUNT 11
 #define FIR_COEFFICIENT_COUNT 81
 
-#define X_QUEUE_SIZE FIR_COEFFICIENT_COUNT
-#define Y_QUEUE_SIZE FIR_COEFFICIENT_COUNT
-#define Z_QUEUE_SIZE IIR_COEFFICIENT_COUNT
-#define OUTPUT_QUEUE_SIZE IIR_COEFFICIENT_COUNT
+#define X_QUEUE_SIZE 81
+#define Y_QUEUE_SIZE 11
+#define Z_QUEUE_SIZE 10
+#define OUTPUT_QUEUE 2000
 
 #define BANDWIDTH 50
 
@@ -158,22 +158,15 @@ void filter_init() {
     initOutputQueues();
 }
 
-void buildQueueName(char *queueName, uint16_t queueNumber){
-
-}
-
 void initXQueue(){
-//    for (uint8_t i = 0; i < IIR_FILTER_COUNT; ++i){
-//        char queueNumber[QUEUE_MAX_NAME_SIZE];
-//        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE);
-//        char xQueueName[QUEUE_MAX_NAME_SIZE];
-//        strcat("XQueue", queueNumber);
-//        queue_init(&(xQueue[i]), IIR_COEFFICIENT_COUNT, xQueueName);
-//    }
+    queue_init(&(xQueue), X_QUEUE_SIZE, "xQueue");
+    for (uint16_t i = 0; i < Y_QUEUE_SIZE; ++i){
+        queue_overwritePush(&(xQueue), 0.0);
+    }
 }
 
 void initYQueue(){
-    queue_init(&(yQueue), FIR_COEFFICIENT_COUNT, "yQueue");
+    queue_init(&(yQueue), Y_QUEUE_SIZE, "yQueue");
     for (uint16_t i = 0; i < Y_QUEUE_SIZE; ++i){
         queue_overwritePush(&(yQueue), 0.0);
     }
@@ -183,10 +176,10 @@ void initZQueues(){
     for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
         char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
         char queueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
-        sprintf(queueName, "%d", i);
+        sprintf(queueNumber, "%d", i);
         strcpy(queueName, "zQueue"); // initialize name
         strcat(queueName, queueNumber); //concatenate queue name and number to build full name
-        queue_init(&(zQueues[i]), IIR_COEFFICIENT_COUNT, queueName); //init the queue
+        queue_init(&(zQueues[i]), Z_QUEUE_SIZE, queueName); //init the queue
         filter_fillQueue(&zQueues[i], 0.0); // fill the queue with values initialized to 0
     }
 }
@@ -195,17 +188,17 @@ void initOutputQueues(){
     for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
         char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
         char queueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
-        sprintf(queueName, "%d", i);
+        sprintf(queueNumber, "%d", i);
         strcpy(queueName, "outputQueue"); // initialize name
         strcat(queueName, queueNumber); //concatenate queue name and number to build full name
-        queue_init(&(outputQueues[i]), IIR_COEFFICIENT_COUNT, queueName); //init the queue
+        queue_init(&(outputQueues[i]), OUTPUT_QUEUE, queueName); //init the queue
         filter_fillQueue(&outputQueues[i], 0.0); // fill the queue with values initialized to 0
     }
 }
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
 void filter_addNewInput(double x) {
-
+    queue_overwritePush(&xQueue, x);
 }
 
 // Fills a queue with the given fillValue. For example,
@@ -221,7 +214,8 @@ void filter_fillQueue(queue_t* q, double fillValue) {
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-
+    //queue_readElementAt();
+    //queue_overwritePush(yQueue, fillValue);
 }
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
