@@ -3,7 +3,8 @@
 //
 
 #include <stdlib.h>
-#include <memory.h>
+#include <stdio.h>
+#include <string.h>
 #include "filter.h"
 #include "queue.h"
 
@@ -172,13 +173,6 @@ void initXQueue(){
 }
 
 void initYQueue(){
-//    for (uint8_t i = 0; i < IIR_FILTER_COUNT; ++i){
-//        char queueNumber[QUEUE_MAX_NAME_SIZE];
-//        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE);
-//        char yQueueName[QUEUE_MAX_NAME_SIZE];
-//        strcat("YQueue", queueNumber);
-//        queue_init(&(yQueue[i]), IIR_COEFFICIENT_COUNT, yQueueName);
-//    }
     queue_init(&(yQueue), FIR_COEFFICIENT_COUNT, "yQueue");
     for (uint16_t i = 0; i < Y_QUEUE_SIZE; ++i){
         queue_overwritePush(&(yQueue), 0.0);
@@ -188,11 +182,11 @@ void initYQueue(){
 void initZQueues(){
     for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
         char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
-        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE); //make a string of the queue number which is an int, put it into string
-        char yQueueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
-        strcpy(yQueueName, "yQueue"); // initialize name
-        strcat(yQueueName, queueNumber); //concatenate queue name and number to build full name
-        queue_init(&(zQueues[i]), IIR_COEFFICIENT_COUNT, yQueueName); //init the queue
+        char queueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
+        sprintf(queueName, "%d", i);
+        strcpy(queueName, "zQueue"); // initialize name
+        strcat(queueName, queueNumber); //concatenate queue name and number to build full name
+        queue_init(&(zQueues[i]), IIR_COEFFICIENT_COUNT, queueName); //init the queue
         filter_fillQueue(&zQueues[i], 0.0); // fill the queue with values initialized to 0
     }
 }
@@ -200,8 +194,8 @@ void initZQueues(){
 void initOutputQueues(){
     for (uint16_t i = 0; i < IIR_FILTER_COUNT; ++i){
         char queueNumber[QUEUE_MAX_NAME_SIZE]; //buffer for queue number
-        itoa(i, queueNumber, QUEUE_MAX_NAME_SIZE); //make a string of the queue number which is an int, put it into string
         char queueName[QUEUE_MAX_NAME_SIZE]; //buffer for queue name
+        sprintf(queueName, "%d", i);
         strcpy(queueName, "outputQueue"); // initialize name
         strcat(queueName, queueNumber); //concatenate queue name and number to build full name
         queue_init(&(outputQueues[i]), IIR_COEFFICIENT_COUNT, queueName); //init the queue
