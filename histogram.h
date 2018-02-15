@@ -5,7 +5,7 @@
 //#include "detector.h"
 
 #include <stdint.h>
-#include <stdbool.h
+#include <stdbool.h>
 
 // Use ifndef because these should be defined in display.h
 #ifndef DISPLAY_WIDTH
