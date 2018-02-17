@@ -214,8 +214,11 @@ void filter_fillQueue(queue_t* q, double fillValue) {
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-    //queue_readElementAt();
-    //queue_overwritePush(yQueue, fillValue);
+	double y;
+	for (uint32_t i = 0; i<FIR_COEFFICIENT_COUNT; i++) {
+		y += queue_readElementAT(&xQueue, FIR_COEFFICIENT_COUNT-1-i) * firCoefficients[i];      //is FIR_Coefficient correct? I think so look at Queue code
+	}
+queue_overwritePush(&yQueue, y);    //Output to yQueue
 }
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
