@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "queue.h"
+#include "filterTest.h"
 
 #define SIZE 20
 #define NAME "Best_Queue"
@@ -14,7 +15,8 @@
 
 
 int main(){
-    queue_runTest();
+    filterTest_runTest();
+    //queue_runTest();
     printf("test");
     return 0;
 }
