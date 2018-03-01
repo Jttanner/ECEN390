@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "queue.h"
 
+#define IIR_FILTER_COUNT 10
+
 #define FILTER_SAMPLE_FREQUENCY_IN_KHZ 100
 #define FILTER_FREQUENCY_COUNT 10
 #define FILTER_FIR_DECIMATION_FACTOR 10  // FIR-filter needs this many new inputs to compute a new output.
@@ -13,6 +15,9 @@
 // Placed here for general access as they are essentially constant throughout
 // the code. The transmitter will also use these.
 const uint16_t filter_frequencyTickTable[FILTER_FREQUENCY_COUNT] = {68, 58, 50, 44, 38, 34, 30, 28, 26, 24};
+
+//Player frequencies
+const static double playerFrequencies[IIR_FILTER_COUNT] = {1471, 1724, 2000, 2273, 2632, 2941, 3333, 3571, 3846, 4167};
 
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.

@@ -28,15 +28,18 @@
  ****************************************************************************************************/
 //#define FILTER_TEST_STORE_OLD_VALUE_IN_QUEUE
 
+
+
 #include "filter.h"
 #ifdef ADC_THROUGH_DETECTOR_FILTER_TEST
 #include "detector.h"
 #include "isr.h"
 #endif
-#include "histogram.h"
+//#include "histogram.h"
 #include "supportFiles/utils.h"
 #include <stdio.h>
 #include <math.h>
+
 
 /****************************************************************************************************
  * filterTest.c provides a set of self-contained test functions that:
@@ -98,7 +101,7 @@ queue_data_t filterTest_readMostRecentValueFromQueue(queue_t* q) {
 }
 
 // Used to normalize values prior to plotting.
-void filterTest_normalizeArrayValues(double normalizedValues[], double origValues[], uint16_t size) {
+/*void filterTest_normalizeArrayValues(double normalizedValues[], double origValues[], uint16_t size) {
     // First, find the indicies of the min. and max. value in the currentPowerValue array.
     uint16_t maxIndex = 0;
     for (int i=0; i<size; i++) {
@@ -109,7 +112,7 @@ void filterTest_normalizeArrayValues(double normalizedValues[], double origValue
     // Normalize everything between 0.0 and 1.0.
     for (int i=0; i<size; i++)
         normalizedValues[i] = origValues[i] / maxValue;
-}
+}*/
 
 // Returns the decimation value.
 uint16_t filterTest_getDecimationValue() {
@@ -137,21 +140,21 @@ bool filterTest_decimatingFirFilter() {
 // 3. The remaining frequencies are between 4 kHz and 50 kHz.
 // 4. The periods of the frequencies are those contained in filter_testPeriodTickCounts[], assuming a tick-rate of 100 kHz.
 void filterTest_plotFirFrequencyResponse(double firPowerValues[]) {
-    // Now we start plotting the results.
+    /*// Now we start plotting the results.
     double normalizedPowerValues[FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT];  // Normalized power values stored here.
     filterTest_normalizeArrayValues(normalizedPowerValues, firPowerValues, FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT);  // Normalize the values.
-    histogram_init(FILTER_TEST_HISTOGRAM_BAR_COUNT);  // Init the histogram.
+    //histogram_init(FILTER_TEST_HISTOGRAM_BAR_COUNT);  // Init the histogram.
     // Set labels and colors (blue) for the standard frequencies 0-9.
     for (int i=0; i<FILTER_FREQUENCY_COUNT; i++) {
-        histogram_setBarColor(i, DISPLAY_BLUE);   // Sets the color of the bar.
+        //histogram_setBarColor(i, DISPLAY_BLUE);   // Sets the color of the bar.
         char tempLabel[MAX_BUF];                  // Temp variable for label generation.
         snprintf(tempLabel, MAX_BUF, "%d", i);    // Create the label that represents one of the user frequencies.
-        histogram_setBarLabel(i, tempLabel);      // Finally, set the label.
+        //histogram_setBarLabel(i, tempLabel);      // Finally, set the label.
     }
     // Set the colors for the other nonstandard frequencies to be red so that the stand out.
     // This loop prints out all of the
     for (int i=10; i<FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT; i++) {
-        histogram_setBarColor(i, DISPLAY_RED);
+        //histogram_setBarColor(i, DISPLAY_RED);
         char tempLabel[MAX_BUF];  // Used to create labels.
         // Create three kinds of labels.
         // 1. Just label the first set of defined frequencies 0-9.
@@ -160,26 +163,26 @@ void filterTest_plotFirFrequencyResponse(double firPowerValues[]) {
         // 3. The lower bound for out-of-bound testing frequencies.
         if (i == FILTER_FREQUENCY_COUNT) {  // Now, you are past the user frequencies - provides a context to show frequency response.
             snprintf(tempLabel, MAX_BUF, "%2.1fkHz",  ((double) FILTER_SAMPLE_FREQUENCY_IN_KHZ)/filterTest_firTestTickCounts[i]);
-            histogram_setBarLabel(i, tempLabel);
+            //histogram_setBarLabel(i, tempLabel);
             // 4. Print the upper bound for out-of-bound testing frequencies further to the left to make readable.
         } else if (i == FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT-4) {
             snprintf(tempLabel, MAX_BUF, "%dkHz",  (FILTER_SAMPLE_FREQUENCY_IN_KHZ)/(filterTest_firTestTickCounts[FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT-1]));
-            histogram_setBarLabel(i, tempLabel);
+            //histogram_setBarLabel(i, tempLabel);
             // This abuses the labels a bit to create something that explains the range of frequencies outside the IIR frequencies.
             // Print a "-" so separate the bounds for readability.
         } else if (i == FILTER_TEST_FIR_POWER_TEST_PERIOD_COUNT-6) {
-            histogram_setBarLabel(i, "-");
+            //histogram_setBarLabel(i, "-");
             // Print blank space everywhere else for labels everywhere else.
         } else {
-            histogram_setBarLabel(i, "");
+            //histogram_setBarLabel(i, "");
         }
     }
     // Set the actual histogram-bar data to be power values.
     for (uint16_t barIndex=0; barIndex<FILTER_TEST_HISTOGRAM_BAR_COUNT; barIndex++) {
-        histogram_setBarData(barIndex, normalizedPowerValues[barIndex] * HISTOGRAM_MAX_BAR_DATA_IN_PIXELS, "");
+        //histogram_setBarData(barIndex, normalizedPowerValues[barIndex] * HISTOGRAM_MAX_BAR_DATA_IN_PIXELS, "");
     }
-    histogram_redrawBottomLabels(); // Need to redraw the bottom labels because I changed the colors.
-    histogram_updateDisplay();      // Redraw the histogram.
+    //histogram_redrawBottomLabels(); // Need to redraw the bottom labels because I changed the colors.
+    //histogram_updateDisplay();      // Redraw the histogram.*/
 }
 
 // Finds the max in values[].
@@ -211,28 +214,28 @@ double findMin(double values[], uint32_t size) {
 #define PLOT_COLOR DISPLAY_GREEN
 #define PLOT_Y0_LINE_COLOR DISPLAY_WHITE
 void filterTest_plotInputValues(double xValues[], double yValues[], uint32_t size) {
-    // Init the display and set the rotation.
-    display_init();
-    display_setRotation(DISPLAY_LANDSCAPE_MODE_ORIGIN_UPPER_LEFT);
-    display_fillScreen(DISPLAY_BLACK);  // Clear the screen.
-    double xScale = findMax(xValues, size) - findMin(xValues, size);  // Scale in x.
-    double yScale = findMax(yValues, size) - findMin(yValues, size);  // Scale in y.
+    /*// Init the display and set the rotation.
+    //display_init();
+    //display_setRotation(DISPLAY_LANDSCAPE_MODE_ORIGIN_UPPER_LEFT);
+    //display_fillScreen(DISPLAY_BLACK);  // Clear the screen.
+    //double xScale = findMax(xValues, size) - findMin(xValues, size);  // Scale in x.
+    //double yScale = findMax(yValues, size) - findMin(yValues, size);  // Scale in y.
     //  uint16_t y0Point = display_height()/2;                        // y0-point is always from the y=0 line on the TFT display.
-    uint16_t y0Point = ONE_HALF(display_height());                    // y0-point is always from the y=0 line on the TFT display.
-    display_drawLine(0, y0Point, display_width()-1, y0Point, PLOT_Y0_LINE_COLOR);  // Draw the y=0 line.
+    //uint16_t y0Point = ONE_HALF(display_height());                    // y0-point is always from the y=0 line on the TFT display.
+    //display_drawLine(0, y0Point, display_width()-1, y0Point, PLOT_Y0_LINE_COLOR);  // Draw the y=0 line.
     for (uint32_t i=0; i<size; i++) {
         //    double_t y1PointFl = ((yValues[i]/yScale) * 2.0) - 1.0;     // Convert y-coordinate range to -1.0 to 1.0. Conceptually easier.
-        double_t y1PointFl = TIMES2_FP(yValues[i]/yScale) - 1.0;     // Convert y-coordinate range to -1.0 to 1.0. Conceptually easier.
-        uint16_t x0Point = (xValues[i]/xScale) * display_width()-1; // Scale X by the width of the display.
-        uint16_t x1Point = x0Point;
+        //double_t y1PointFl = TIMES2_FP(yValues[i]/yScale) - 1.0;     // Convert y-coordinate range to -1.0 to 1.0. Conceptually easier.
+        //uint16_t x0Point = (xValues[i]/xScale) * display_width()-1; // Scale X by the width of the display.
+        //uint16_t x1Point = x0Point;
         if (y1PointFl < 0.0) {    // negative is drawn in lower half.
-            uint16_t y1Point = (-y1PointFl * ((double) ONE_HALF(display_height())-1)) + ONE_HALF(display_height());
-            display_drawLine(x0Point, y0Point, x1Point, y1Point, PLOT_COLOR);
+            //uint16_t y1Point = (-y1PointFl * ((double) ONE_HALF(display_height())-1)) + ONE_HALF(display_height());
+            //display_drawLine(x0Point, y0Point, x1Point, y1Point, PLOT_COLOR);
         } else {                  // positive is drawn in upper half.
-            uint16_t y1Point = y0Point - (y1PointFl) * ONE_HALF(display_height()); // y = 1.0 = 0 (top of TFT display).
-            display_drawLine(x0Point, y0Point, x1Point, y1Point, PLOT_COLOR);
+            //uint16_t y1Point = y0Point - (y1PointFl) * ONE_HALF(display_height()); // y = 1.0 = 0 (top of TFT display).
+            //display_drawLine(x0Point, y0Point, x1Point, y1Point, PLOT_COLOR);
         }
-    }
+    }*/
 }
 
 // Helper function to create input waveform when testing only the filter.c code.
@@ -325,7 +328,7 @@ void filterTest_runSquareWaveFirPowerTest(bool printMessageFlag, bool plotInputF
         if (plotInputFlag) {    // Only plot the data if the flag is true.
             printf("plotting input square wave.\n\r");
             filterTest_plotInputValues(xValues, yValues, currentPeriodTickCount*PERIODS_TO_PLOT);
-            utils_msDelay(INPUT_PLOT_VIEW_DELAY);
+            //utils_msDelay(INPUT_PLOT_VIEW_DELAY);
         }
 #ifdef DETECTOR_H_
         bool interruptsEnabled = false; // Need to tell the detector that interrupts are not currently enabled.
@@ -352,22 +355,22 @@ void filterTest_runSquareWaveFirPowerTest(bool printMessageFlag, bool plotInputF
 // iirPowerValue[0] contains computed power for user-frequency 0, for iir-filter(filterNumber).
 // iirPowerValue[9] contains computed power for user-frequency 9, for iir-filter(filterNumber).
 void filterTest_plotIirFrequencyResponse(double iirPowerValues[], uint16_t filterNumber) {
-    // Make a copy of the power values that you will normalize.
+   /* // Make a copy of the power values that you will normalize.
     double normalizedPowerValue[FILTER_FREQUENCY_COUNT];
     for (int i=0; i<FILTER_FREQUENCY_COUNT; i++) {
         normalizedPowerValue[i] = iirPowerValues[i];
     }
     filterTest_normalizeArrayValues(normalizedPowerValue, iirPowerValues, FILTER_FREQUENCY_COUNT);
-    histogram_init(FILTER_FREQUENCY_COUNT);
+    //histogram_init(FILTER_FREQUENCY_COUNT);
     // Set labels and colors (red) for the standard frequencies 0-9.
     // Default is red but will change the color for the desired frequency to be blue.
     for (int i=0; i<FILTER_FREQUENCY_COUNT; i++) {
-        histogram_setBarColor(i, DISPLAY_RED);
+        //histogram_setBarColor(i, DISPLAY_RED);
         char tempLabel[MAX_BUF];
         snprintf(tempLabel, MAX_BUF, "%d", i);
-        histogram_setBarLabel(i, tempLabel);
+        //histogram_setBarLabel(i, tempLabel);
     }
-    histogram_setBarColor(filterNumber, DISPLAY_BLUE);  // Desired frequency drawn in blue.
+    //histogram_setBarColor(filterNumber, DISPLAY_BLUE);  // Desired frequency drawn in blue.
     for (uint16_t barIndex=0; barIndex<FILTER_FREQUENCY_COUNT; barIndex++) {
         char label[HISTOGRAM_BAR_TOP_MAX_LABEL_WIDTH_IN_CHARS]; // Get a buffer for the label.
         // Create the top-label, based upon the actual power value. Use floor() +0.5 to round the number instead of truncate.
@@ -375,10 +378,10 @@ void filterTest_plotIirFrequencyResponse(double iirPowerValues[], uint16_t filte
             printf("Error: snprintf encountered an error during conversion.\n\r");
         // Pull out the 'e' from the exponent to make better use of your characters.
         trimLabel(label);
-        histogram_setBarData(barIndex, normalizedPowerValue[barIndex] * HISTOGRAM_MAX_BAR_DATA_IN_PIXELS, label); // No top-label.
+        //histogram_setBarData(barIndex, normalizedPowerValue[barIndex] * HISTOGRAM_MAX_BAR_DATA_IN_PIXELS, label); // No top-label.
     }
-    histogram_redrawBottomLabels();  // Need to redraw the bottom labels because I changed the colors.
-    histogram_updateDisplay();     // Redraw the histogram.
+    //histogram_redrawBottomLabels();  // Need to redraw the bottom labels because I changed the colors.
+    //histogram_updateDisplay();     // Redraw the histogram.*/
 }
 
 // Fills the queue with the fillValue, overwriting all previous contents.
@@ -594,6 +597,7 @@ bool filterTest_runIirAAlignmentTest(uint16_t filterNumber, bool printMessageFla
 }
 
 // Normalizes the values in the array argument.
+/*
 void filterTest_normalizeArrayValues(double* array, uint16_t size) {
     // Find the maximum value
     uint16_t maxIndex = 0;
@@ -606,11 +610,12 @@ void filterTest_normalizeArrayValues(double* array, uint16_t size) {
     // Normalize everything between 0.0 and 1.0, based upon the max value.
     for (int i=0; i<size; i++)
         array[i] = array[i] / maxPowerValue;
-}
+}*/
 
 // Converts rand into a value between 0 and 1.
 double filterTest_randomValue0To1() {
-    return ((double) rand()) / ((double) RAND_MAX);
+    return 0;
+    //return ((double) rand()) / ((double) 1.0);
 }
 
 // Test function that completely fills a queue with random values.
@@ -744,10 +749,10 @@ bool filterTest_runTest() {
     // Plots the frequency response of the FIR filter against all user and other test frequencies.
     // All frequencies are expressed as a square wave.
     filterTest_runSquareWaveFirPowerTest(PRINT_INFO_MESSAGES, PLOT_INPUT);
-    utils_msDelay(FOUR_SECONDS); // Leave on the display for a couple of seconds.
+    //utils_msDelay(FOUR_SECONDS); // Leave on the display for a couple of seconds.
     for (int i=0; i<FILTER_FREQUENCY_COUNT; i++) {    // Plot all 10 IIR filters against the test freqs.
         filterTest_runSquareWaveIirPowerTest(i, true);  // This plots the individual filter response.
-        utils_msDelay(TWO_SECONDS);                     // Leave on the display for a few seconds.
+      //  utils_msDelay(TWO_SECONDS);                     // Leave on the display for a few seconds.
     }
     return success;
 }

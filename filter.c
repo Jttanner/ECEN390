@@ -31,9 +31,6 @@ static queue_t outputQueues[OUTPUT_QUEUE_SIZE];
 static double currentPowerValue[IIR_FILTER_COUNT];
 static double oldestOutput[IIR_FILTER_COUNT];
 
-//Player frequencies
-const static double playerFrequencies[IIR_FILTER_COUNT] = {1471, 1724, 2000, 2273, 2632, 2941, 3333, 3571, 3846, 4167};
-
 
 //Filter Coefficients
 
@@ -270,7 +267,7 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, 
 		// TODO: Check if i need to abs before multiplying
         power = abs(sum);
     } else{
-		//power = currentPowerValue[filter-number] - abs(oldestOutput * oldestOutput) + abs(queue_readElementAt(&outputQueues[i], 0));
+		power = currentPowerValue[filterNumber] - abs(oldestOutput[filterNumber] * oldestOutput[filterNumber]) + abs(queue_readElementAt(&outputQueues[filterNumber], 0));
     }
 	return power;
 }
