@@ -6,16 +6,29 @@
 #define ISR_ADC_INTEGER_MIN_VALUE 0.0
 
 #include "isr.h"
+#include "transmitter.h"
 #include <stdint.h>
- 
+#include <stdio.h>
+#include "hitLedTimer.h"
+#include "trigger.h"
+#include "lockoutTimer.h"
+
+
 // isr provides the isr_function() where you will place functions that require accurate timing.
 // A buffer for storing values from the Analog to Digital Converter (ADC) is implemented in isr.c
  
 // Performs inits for anything in isr.c
-void isr_init();
+void isr_init(){
+
+}
  
 // This function is invoked by the timer interrupt at 100 kHz.
-void isr_function();
+void isr_function(){
+    transmitter_tick();
+    hitLedTimer_tick();
+    lockoutTimer_tick();
+    trigger_tick();
+}
  
 /*******************************************************************
 * The functions below will be implemented in the next milestone.   *

@@ -40,10 +40,10 @@ void transmitter_setContinuousMode(bool continuousModeFlag);
  
 // This is provided for testing as explained in the transmitter section of the web-page. When enabled,
 // debug prints are enabled to help to demonstrate the behavior of the transmitter.
-void transmitter_enableTestMode()
+void transmitter_enableTestMode();
  
 // This is provided for testing as explained in the transmitter section of the web-page. When disabled,
 // debug prints that were previously enabled no longer appear.
-void transmitter_disableTestMode()
+void transmitter_disableTestMode();
  
 #endif /* TRANSMITTER_H_ */
