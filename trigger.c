@@ -6,6 +6,7 @@
 #include "lockoutTimer.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "supportFiles/switches.h"
  
 // The trigger state machine debounces both the press and release of gun trigger.
 // Ultimately, it will activate the transmitter when a debounced press is detected.
@@ -79,6 +80,13 @@ void trigger_tick() {
         if (count > DELAY) {
             //transmitter_run();         //this is so the gun will only fire once on the transition into shoot_st
             printf("D\n");
+            uint32_t switch0 = switches_read() & SWITCHES_SW0_MASK;
+            uint32_t switch1 = switches_read() & SWITCHES_SW1_MASK;
+            uint32_t switch2 = switches_read() & SWITCHES_SW2_MASK;
+            uint32_t switch3 = switches_read() & SWITCHES_SW3_MASK;
+            uint32_t selectedPlayer = switch0 + switch1 + switch2 + switch3;
+            transmitter_setFrequencyNumber(selectedPlayer);
+            transmitter_run();
             currentState = shoot_st;
             count = INIT;
         }
