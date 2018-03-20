@@ -6,6 +6,8 @@
 
 #define IIR_FILTER_COUNT 10
 
+#define OUTPUT_QUEUE_SIZE 2000
+
 #define FILTER_SAMPLE_FREQUENCY_IN_KHZ 100
 #define FILTER_FREQUENCY_COUNT 10
 #define FILTER_FIR_DECIMATION_FACTOR 10  // FIR-filter needs this many new inputs to compute a new output.
@@ -14,6 +16,12 @@
 // Not used in filter.h but are used to TEST the filter code.
 // Placed here for general access as they are essentially constant throughout
 // the code. The transmitter will also use these.
+
+
+
+
+void test_addPowerValue(uint16_t filterNumber, double value);
+
 const uint16_t filter_frequencyTickTable[FILTER_FREQUENCY_COUNT] = {68, 58, 50, 44, 38, 34, 30, 28, 26, 24};
 
 //Player frequencies

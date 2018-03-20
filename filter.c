@@ -8,6 +8,8 @@
 #include "filter.h"
 #include "queue.h"
 
+
+
 #define IIR_FILTER_COUNT 10
 
 #define IIR_COEFFICIENT_COUNT 11
@@ -16,21 +18,20 @@
 #define X_QUEUE_SIZE 81
 #define Y_QUEUE_SIZE 11
 #define Z_QUEUE_SIZE 10
-#define OUTPUT_QUEUE_SIZE 2000
+
 
 #define BANDWIDTH 50
 #define DECIMATION_COUNT 10
 
 #define IIR_FILTER_BASE_NAME "Filter Number "
 
+static double currentPowerValue[IIR_FILTER_COUNT];
 static queue_t xQueue;
 static queue_t yQueue;
 static queue_t zQueues[IIR_FILTER_COUNT];
 static queue_t outputQueues[OUTPUT_QUEUE_SIZE];
-
-static double currentPowerValue[IIR_FILTER_COUNT];
 static double oldestOutput[IIR_FILTER_COUNT];
-
+//static double currentPowerValue[IIR_FILTER_COUNT];
 
 //Filter Coefficients
 
@@ -275,6 +276,10 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, 
 // Returns the last-computed output power value for the IIR filter [filterNumber].
 double filter_getCurrentPowerValue(uint16_t filterNumber) {
 	return currentPowerValue[filterNumber];
+}
+
+void test_addPowerValue(uint16_t filterNumber, double value){
+    currentPowerValue[filterNumber] = value;
 }
 
 // Get a copy of the current power values.
